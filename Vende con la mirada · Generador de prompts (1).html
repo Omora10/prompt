@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vende con la mirada · Generador de prompts</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#101828;--mute:#5B6475;--line:#D9DEE8;--navy:#0E2147;--gold:#FFC72C;--gold-ink:#0E2147;--chip:#E8ECF4;--chipon:#0E2147;--chipon-t:#FFFFFF;--frame:#0E2147;--frame-t:#EAF0FF;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1226;--surface:#121C36;--ink:#EEF2FB;--mute:#9AA6BF;--line:#26335A;--chip:#1B2848;--chipon:#FFC72C;--chipon-t:#0E2147;--frame:#060C1C;--frame-t:#EAF0FF}}
+:root[data-theme="dark"]{--bg:#0A1226;--surface:#121C36;--ink:#EEF2FB;--mute:#9AA6BF;--line:#26335A;--chip:#1B2848;--chipon:#FFC72C;--chipon-t:#0E2147;--frame:#060C1C;--frame-t:#EAF0FF}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "DM Sans",system-ui,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 18px 56px}
+h1{font:800 clamp(30px,6vw,52px)/1.02 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 10px;letter-spacing:-.02em}
+.lead{color:var(--mute);max-width:56ch;margin:0 0 26px}
+.grid{display:grid;gap:22px;grid-template-columns:1fr}
+@media(min-width:880px){.grid{grid-template-columns:1fr 1fr;align-items:start}.out{position:sticky;top:18px}}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend{font:700 15px "DM Sans",sans-serif;padding:0;margin-bottom:8px}
+.hint{font-weight:400;color:var(--mute);font-size:13px;margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid transparent;background:var(--chip);color:var(--ink);border-radius:999px;padding:9px 15px;font:500 14px "DM Sans",sans-serif;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--chipon);color:var(--chipon-t);font-weight:700}
+.chip:focus-visible,input:focus-visible,button:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input[type=text]{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:12px 14px;font:400 16px "DM Sans",sans-serif}
+.ex{margin-top:8px}.ex .chip{font-size:13px;padding:6px 12px;min-height:34px;background:transparent;border:1px dashed var(--line);color:var(--mute)}
+.frame{position:relative;background:var(--frame);color:var(--frame-t);border-radius:6px;padding:34px 26px 24px}
+.frame i{position:absolute;width:22px;height:22px;border:3px solid var(--gold)}
+.frame i:nth-child(1){top:10px;left:10px;border-right:0;border-bottom:0}
+.frame i:nth-child(2){top:10px;right:10px;border-left:0;border-bottom:0}
+.frame i:nth-child(3){bottom:10px;left:10px;border-right:0;border-top:0}
+.frame i:nth-child(4){bottom:10px;right:10px;border-left:0;border-top:0}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.ratio{width:44px;border:2px solid var(--gold);border-radius:3px;background:rgba(255,199,44,.12);transition:aspect-ratio .25s;flex:none}
+.top b{font:700 14px "DM Sans",sans-serif}.top span{display:block;font-size:13px;opacity:.75}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{background:transparent;color:var(--frame-t);border:1px solid rgba(234,240,255,.3);border-radius:8px;padding:6px 14px;font:500 13px "DM Sans",sans-serif;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);font-weight:700}
+#prompt{font-size:15.5px;line-height:1.6;min-height:150px;margin:0 0 18px;white-space:pre-wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:13px 20px;font:700 15px "DM Sans",sans-serif;cursor:pointer;min-height:46px}
+.btn.main{background:var(--gold);color:var(--gold-ink);flex:1}
+.btn.alt{background:transparent;color:var(--frame-t);border:1px solid rgba(234,240,255,.35)}
+.check{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.check h2{font:700 16px "DM Sans",sans-serif;margin:0 0 4px}
+.check p{margin:0 0 10px;color:var(--mute);font-size:14px}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:15px;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--navy);flex:none}
+.check label:has(input:checked){color:var(--mute);text-decoration:line-through}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:.25s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.hero{background:linear-gradient(135deg,#0E2147 0%,#1A3B7C 100%);color:#fff;padding:26px 18px 64px}
+.hin{max-width:1040px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font:700 15px "DM Sans",sans-serif;margin-bottom:30px}
+.mark{width:30px;height:30px;border:2px solid var(--gold);border-radius:7px;display:grid;place-items:center}
+.mark i{width:10px;height:10px;background:var(--gold);border-radius:50%}
+.hero h1{color:#fff;max-width:16ch}
+.hero .lead{color:#C8D3EC;margin:0;font-size:17px}
+main.wrap{margin-top:-34px;padding-top:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px 22px 6px;box-shadow:0 10px 30px rgba(14,33,71,.12)}
+.card legend{font-size:16px}
+.next{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:12px}
+.next li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.next li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--chipon);color:var(--chipon-t);display:grid;place-items:center;font:700 13px "DM Sans",sans-serif}
+.check+.check{margin-top:14px}
+.foot{max-width:1040px;margin:0 auto;padding:0 18px calc(40px + env(safe-area-inset-bottom,0px));color:var(--mute);font-size:13px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hin">
+<div class="brand"><div class="mark" aria-hidden="true"><i></i></div>Vende con la mirada</div>
+<h1>Crea la imagen que vende tu producto</h1>
+<p class="lead">Elige cinco opciones y obtén el prompt listo para pegar en cualquier IA de imágenes.</p>
+</div></header>
+<main class="wrap">
+<div class="grid">
+<section class="card" aria-label="Configura tu imagen">
+<fieldset><legend>1. Tu sector</legend><div class="chips" id="sector"></div></fieldset>
+<fieldset><legend>2. Qué vendes <span class="hint">sé específico</span></legend>
+<input type="text" id="prod" maxlength="80" autocomplete="off" aria-label="Producto">
+<div class="chips ex" id="ex"></div></fieldset>
+<fieldset><legend>3. Dónde la vas a publicar</legend><div class="chips" id="fmt"></div></fieldset>
+<fieldset><legend>4. Estilo</legend><div class="chips" id="style"></div></fieldset>
+<fieldset><legend>5. Escena y luz</legend><div class="chips" id="scene"></div></fieldset>
+<fieldset><legend>Nombre de tu negocio <span class="hint">opcional, solo para contexto</span></legend>
+<input type="text" id="brand" maxlength="40" autocomplete="off" placeholder="Ej: Café La Cumbre" aria-label="Nombre del negocio"></fieldset>
+</section>
+<section class="out" aria-label="Tu prompt">
+<div class="frame"><i></i><i></i><i></i><i></i>
+<div class="top"><div class="ratio" id="ratio"></div><div><b id="fmtname"></b><span id="fmtinfo"></span></div></div>
+<div class="tabs"><button class="tab" data-l="es" aria-pressed="true">Español</button><button class="tab" data-l="en" aria-pressed="false">English</button></div>
+<p id="prompt" aria-live="polite"></p>
+<div class="row"><button class="btn main" id="copy">Copiar prompt</button><button class="btn alt" id="var">Otro ángulo</button></div>
+</div>
+<div class="check"><h2>Antes de publicar, revisa</h2><p>La IA se equivoca en lo mismo siempre. Marca cada punto.</p>
+<label><input type="checkbox">Manos y dedos se ven normales</label>
+<label><input type="checkbox">No hay letras ni textos deformes</label>
+<label><input type="checkbox">El producto se parece al que realmente vendes</label>
+<label><input type="checkbox">Agregaste tu logo y el precio con Canva, no con la IA</label>
+<label><input type="checkbox">El fondo no tiene objetos extraños</label></div>
+<div class="check"><h2>Cómo usarlo</h2>
+<ol class="next"><li>Copia el prompt y pégalo en tu IA de imágenes.</li><li>Genera varias opciones y elige la mejor.</li><li>Agrega logo, precio y contacto en Canva, y publica.</li></ol></div>
+</section>
+</div>
+</main>
+<footer class="foot">Hecho para la capacitación “Vende con la mirada”. Funciona con cualquier IA de imágenes.</footer>
+<div class="toast" id="toast" role="status">Prompt copiado</div>
+<script>
+var D={
+sectors:{"Comida":["arepas rellenas","empanadas","hamburguesa artesanal","café de origen"],"Moda":["ruana tejida","jeans","bolso de cuero","camiseta estampada"],"Belleza":["crema facial","servicio de manicure","jabón artesanal","corte de cabello"],"Hogar":["muebles de madera","velas aromáticas","plantas decorativas","canasta tejida"],"Servicios":["asesoría contable","fisioterapia","clases de inglés","servicio de limpieza"],"Turismo":["cabaña con vista al valle","tour por el pueblo","hotel boutique","plan de aventura"]},
+fmts:[{n:"Post Instagram",r:"4:5",i:"Vertical, ocupa más pantalla en el feed"},{n:"Story o Reel",r:"9:16",i:"Pantalla completa del celular"},{n:"Cuadrada",r:"1:1",i:"Facebook, WhatsApp y catálogos"},{n:"Banner web",r:"16:9",i:"Portada de página y YouTube"}],
+styles:[{n:"Rústico y cálido",es:"rústico y cálido, tonos tierra",en:"rustic and warm, earthy tones"},{n:"Premium",es:"premium y elegante, fondo oscuro con detalles dorados",en:"premium and elegant, dark background with golden accents"},{n:"Fresco y colorido",es:"fresco, vibrante y colorido",en:"fresh, vibrant and colorful"},{n:"Minimalista",es:"minimalista, limpio y moderno",en:"minimalist, clean and modern"},{n:"Colombiano auténtico",es:"colombiano auténtico, con texturas artesanales y colores de la región",en:"authentic Colombian, with handcrafted textures and regional colors"}],
+scenes:[{n:"Mesa de madera",es:"sobre una mesa de madera junto a una ventana, luz natural suave",en:"on a wooden table by a window, soft natural light"},{n:"Fondo de estudio",es:"sobre fondo liso de estudio, iluminación profesional suave",en:"on a seamless studio backdrop, soft professional lighting"},{n:"Atardecer",es:"en exterior al atardecer, luz dorada cálida",en:"outdoors at sunset, warm golden light"},{n:"Entorno real",es:"en su entorno real de uso, ambiente acogedor",en:"in its real-life setting, cozy atmosphere"}],
+angles:[{es:"vista frontal a la altura del producto",en:"eye-level front view"},{es:"ángulo de 45 grados",en:"45-degree angle"},{es:"plano cenital desde arriba",en:"top-down flat lay"},{es:"primer plano con detalle de textura",en:"close-up showing texture detail"}]
+};
+var S={sector:"Comida",fmt:1-1,style:4,scene:0,ang:0,lang:"es"};
+var $=function(i){return document.getElementById(i)};
+function chips(id,items,key,label){var el=$(id);el.innerHTML="";items.forEach(function(it,ix){var b=document.createElement("button");b.className="chip";b.type="button";b.textContent=label(it);b.onclick=function(){S[key]=(key==="sector")?it:ix;if(key==="sector"){$("prod").value="";}render()};b.dataset.k=key;b.dataset.v=(key==="sector")?it:ix;el.appendChild(b)})}
+function render(){
+document.querySelectorAll("[data-k]").forEach(function(b){b.setAttribute("aria-pressed",String(String(S[b.dataset.k])===b.dataset.v))});
+$("prod").placeholder="Ej: "+D.sectors[S.sector][0];
+var ex=$("ex");ex.innerHTML="";D.sectors[S.sector].forEach(function(p){var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=p;b.onclick=function(){$("prod").value=p;render()};ex.appendChild(b)});
+var f=D.fmts[S.fmt];$("fmtname").textContent=f.n+" · "+f.r;$("fmtinfo").textContent=f.i;
+var w=f.r.split(":");$("ratio").style.aspectRatio=w[0]+"/"+w[1];$("ratio").style.width=(+w[0]>+w[1]?64:40)+"px";
+var p=$("prod").value.trim()||D.sectors[S.sector][0],br=$("brand").value.trim(),st=D.styles[S.style],sc=D.scenes[S.scene],an=D.angles[S.ang],t;
+if(S.lang==="es"){t="Fotografía comercial profesional de "+p+(br?" para la marca "+br:"")+", estilo "+st.es+". Escena: "+sc.es+". Encuadre: "+an.es+". Formato "+f.r+" ("+f.n.toLowerCase()+"). Deja espacio libre en la composición para agregar texto después. Enfoque nítido, colores naturales y apetecibles, alta resolución. Sin texto, sin logos, sin marcas de agua."}
+else{t="Professional commercial photograph of "+p+(br?" for the brand "+br:"")+", "+st.en+" style. Scene: "+sc.en+". Framing: "+an.en+". Aspect ratio "+f.r+". Leave clean empty space in the composition for adding text later. Sharp focus, natural appetizing colors, high resolution. No text, no logos, no watermarks."}
+$("prompt").textContent=t;
+document.querySelectorAll(".tab").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.l===S.lang))})}
+chips("sector",Object.keys(D.sectors),"sector",function(x){return x});
+chips("fmt",D.fmts,"fmt",function(x){return x.n});
+chips("style",D.styles,"style",function(x){return x.n});
+chips("scene",D.scenes,"scene",function(x){return x.n});
+$("prod").oninput=render;$("brand").oninput=render;
+document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){S.lang=b.dataset.l;render()}});
+$("var").onclick=function(){S.ang=(S.ang+1)%D.angles.length;render()};
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(function(){t.classList.remove("on")},1800)}
+$("copy").onclick=function(){var tx=$("prompt").textContent;
+function fb(){var a=document.createElement("textarea");a.value=tx;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Prompt copiado")}catch(e){toast("Selecciona y copia manualmente")}a.remove()}
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(tx).then(function(){toast("Prompt copiado")},fb)}else{fb()}};
+render();
+</script>
+</body>
+</html>
